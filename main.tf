@@ -42,6 +42,7 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
+
 resource "aws_iam_instance_profile" "default" {
   name = "${var.name}"
   role = "${aws_iam_role.default.name}"
@@ -52,6 +53,11 @@ resource "aws_iam_role" "default" {
   path = "/"
 
   assume_role_policy = "${data.aws_iam_policy_document.default.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "test-attach" {
+  role       = "${aws_iam_role.default}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
 }
 
 resource "aws_security_group" "default" {
