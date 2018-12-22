@@ -10,7 +10,7 @@ data "terraform_remote_state" "vpc" {
   backend = "s3"
 
   config {
-    bucket = "terragrunt-priceflow-staging-terraform-state"
+    bucket = "${var.remote_bucket}"
     key    = "vpc/terraform.tfstate"
     region = "us-west-2"
   }
