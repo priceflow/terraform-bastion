@@ -16,6 +16,16 @@ data "terraform_remote_state" "vpc" {
   }
 }
 
+data "terraform_remote_state" "rds" {
+  backend = "s3"
+
+  config {
+    bucket = "${var.remote_bucket}"
+    key    = "rds/terraform.tfstate"
+    region = "us-west-2"
+  }
+}
+
 data "template_file" "user_data" {
   template = "${file("${path.module}/user_data.sh")}"
 
@@ -41,7 +51,6 @@ data "aws_iam_policy_document" "default" {
     effect = "Allow"
   }
 }
-
 
 resource "aws_iam_instance_profile" "default" {
   name = "${var.name}"
@@ -90,6 +99,13 @@ resource "aws_instance" "default" {
   instance_type = "${var.instance_type}"
 
   user_data = "${data.template_file.user_data.rendered}"
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x init.sql",
+      "psql --username=postgres --password=${var.db_password} --port=5432 --host=${data.terraform_remote_state.rds.instance_endpoint} --file=init.sql",
+    ]
+  }
 
   vpc_security_group_ids = [
     "${compact(concat(list(aws_security_group.default.id), list(data.terraform_remote_state.vpc.default_security_group_id)))}",
