@@ -123,7 +123,8 @@ resource "aws_instance" "default" {
   provisioner "remote-exec" {
     inline = [
       "chmod +x /tmp/init.sql",
-      "PGPASSWORD=${var.db_password} /usr/bin/psql --username=postgres --dbname=koala --port=5432 --host=${data.terraform_remote_state.rds.instance_address} --file=/tmp/init.sql",
+      "sudo apt-get install -y postgresql postgresql-contrib",
+      "PGPASSWORD=${var.db_password} psql --username=postgres --dbname=koala --port=5432 --host=${data.terraform_remote_state.rds.instance_address} --file=/tmp/init.sql",
     ]
 
     connection {
