@@ -6,11 +6,6 @@ terraform {
   backend "s3" {}
 }
 
-resource "aws_key_pair" "auth" {
-  key_name   = "default"
-  public_key = "${file(var.key_path)}"
-}
-
 data "terraform_remote_state" "vpc" {
   backend = "s3"
 
@@ -105,6 +100,15 @@ resource "aws_instance" "default" {
 
   user_data = "${data.template_file.user_data.rendered}"
 
+  vpc_security_group_ids = [
+    "${compact(concat(list(aws_security_group.default.id), list(data.terraform_remote_state.vpc.default_security_group_id)))}",
+  ]
+
+  iam_instance_profile        = "${aws_iam_instance_profile.default.name}"
+  associate_public_ip_address = "true"
+
+  key_name = "${var.key_name}"
+
   provisioner "remote-exec" {
     inline = [
       "chmod +x init.sql",
@@ -114,18 +118,9 @@ resource "aws_instance" "default" {
     connection {
       type        = "ssh"
       user        = "${var.ssh_user}"
-      private_key = "${aws_key_pair.auth.public_key}"
+      private_key = "${file("${var.key_path}")}"
     }
   }
-
-  vpc_security_group_ids = [
-    "${compact(concat(list(aws_security_group.default.id), list(data.terraform_remote_state.vpc.default_security_group_id)))}",
-  ]
-
-  iam_instance_profile        = "${aws_iam_instance_profile.default.name}"
-  associate_public_ip_address = "true"
-
-  key_name = "${var.key_name}"
 
   subnet_id = "${data.terraform_remote_state.vpc.public_subnets[0]}"
 
