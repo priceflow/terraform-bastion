@@ -127,8 +127,7 @@ resource "aws_instance" "default" {
       "sudo apt-get update",
       "sudo apt-get install -y postgresql postgresql-contrib",
       "sudo which psql",
-      "export PGPASSWORD=${var.db_password}",
-      "sudo psql --username=postgres --dbname=koala --port=5432 --host=${data.terraform_remote_state.rds.instance_address} --file=/tmp/init.sql",
+      "PGPASSWORD=${var.db_password} psql --username=postgres --dbname=koala --port=5432 --host=${data.terraform_remote_state.rds.instance_address} --file=/tmp/init.sql",
     ]
 
     connection {
