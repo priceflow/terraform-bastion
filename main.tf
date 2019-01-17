@@ -109,7 +109,7 @@ resource "aws_instance" "default" {
   connection {
     type = "ssh"
     user = "${var.ssh_user}"
-    private_key = "${file("${var.key_path}")}"
+    private_key = "${file(var.key_path)}"
   }
   }
 
