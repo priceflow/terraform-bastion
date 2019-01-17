@@ -109,10 +109,21 @@ resource "aws_instance" "default" {
 
   key_name = "${var.key_name}"
 
+  provisioner "file" {
+    connection {
+      type        = "ssh"
+      user        = "${var.ssh_user}"
+      private_key = "${file("key")}"
+    }
+
+    source      = "${path.module}/init.sql"
+    destination = "/tmp/init.sql"
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "chmod +x init.sql",
-      "psql --username=postgres --password=${var.db_password} --port=5432 --host=${data.terraform_remote_state.rds.instance_endpoint} --file=init.sql",
+      "chmod +x /tmp/init.sql",
+      "psql --username=postgres --password=${var.db_password} --port=5432 --host=${data.terraform_remote_state.rds.instance_endpoint} --file=/tmp/init.sql",
     ]
 
     connection {
