@@ -117,7 +117,7 @@ resource "aws_instance" "default" {
 
 data "null_data_source" "key" {
   inputs {
-    filename = "${path.module}/key}"
+    filename = "key}"
   }
 }
 
