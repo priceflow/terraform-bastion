@@ -63,7 +63,6 @@ variable "tags" {
 variable "db_password" {
   description = "DB password"
   type        = "string"
-  default     = ""
 }
 
 variable "key_path" {
