@@ -6,6 +6,11 @@ terraform {
   backend "s3" {}
 }
 
+resource "aws_key_pair" "auth" {
+  key_name   = "default"
+  public_key = "${file(var.key_path)}"
+}
+
 data "terraform_remote_state" "vpc" {
   backend = "s3"
 
@@ -106,11 +111,11 @@ resource "aws_instance" "default" {
       "psql --username=postgres --password=${var.db_password} --port=5432 --host=${data.terraform_remote_state.rds.instance_endpoint} --file=init.sql",
     ]
 
-  connection {
-    type = "ssh"
-    user = "${var.ssh_user}"
-    private_key = "${file("${var.key_path}")}"
-  }
+    connection {
+      type        = "ssh"
+      user        = "${var.ssh_user}"
+      private_key = "${aws_key_pair.auth.public_key}"
+    }
   }
 
   vpc_security_group_ids = [
