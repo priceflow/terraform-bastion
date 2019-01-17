@@ -109,20 +109,40 @@ resource "aws_instance" "default" {
 
   key_name = "${var.key_name}"
 
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x init.sql",
-      "psql --username=postgres --password=${var.db_password} --port=5432 --host=${data.terraform_remote_state.rds.instance_endpoint} --file=init.sql",
-    ]
-
-    connection {
-      type        = "ssh"
-      user        = "${var.ssh_user}"
-      private_key = "${file("key")}"
-    }
-  }
-
   subnet_id = "${data.terraform_remote_state.vpc.public_subnets[0]}"
 
   tags = "${merge(map("Name", format("%s", var.name)), var.tags)}"
+}
+
+
+data "null_data_source" "key" {
+  inputs {
+    filename = "${path.module}/key}"
+  }
+}
+
+resource "null_resource" "example_provisioner" {
+  triggers {
+    public_ip = "${aws_instance.default.public_ip}"
+  }
+
+  connection {
+    type  = "ssh"
+    host  = "${aws_instance.default.public_ip}"
+    user  = "ubuntu"
+    port  = "22"
+    private_key = "${data.null_data_source.key.outputs.filename}"
+  }
+
+  provisioner "file" {
+    source      = "files/init.sql"
+    destination = "/tmp/init.sql"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/init.sql",
+      "psql --username=postgres --password=${var.db_password} --port=5432 --host=${data.terraform_remote_state.rds.instance_endpoint} --file=/tmp/init.sql",
+    ]
+  }
 }
