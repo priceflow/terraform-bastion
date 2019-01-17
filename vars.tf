@@ -65,3 +65,9 @@ variable "db_password" {
   type        = "string"
   default     = ""
 }
+
+variable "key_path" {
+  description = "Path to ssh key"
+  type        = "string"
+  default     = ""
+}

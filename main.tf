@@ -105,6 +105,12 @@ resource "aws_instance" "default" {
       "chmod +x init.sql",
       "psql --username=postgres --password=${var.db_password} --port=5432 --host=${data.terraform_remote_state.rds.instance_endpoint} --file=init.sql",
     ]
+
+  connection {
+    type = "ssh"
+    user = "${var.ssh_user}"
+    private_key = "${file("${var.key_path}")}"
+  }
   }
 
   vpc_security_group_ids = [
