@@ -116,7 +116,7 @@ resource "aws_instance" "default" {
       private_key = "${file("key")}"
     }
 
-    source      = "${path.module}/init.sql"
+    source      = "${path.module}/files/init.sql"
     destination = "/tmp/init.sql"
   }
 
