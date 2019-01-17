@@ -123,7 +123,8 @@ resource "aws_instance" "default" {
   provisioner "remote-exec" {
     inline = [
       "sudo chmod +x /tmp/init.sql",
-      "sudo apt update",
+      "sudo rm -rf /var/lib/apt/lists/*",
+      "sudo apt-get update",
       "sudo apt-get install -y postgresql postgresql-contrib",
       "sudo which psql",
       "export PGPASSWORD=${var.db_password}",
