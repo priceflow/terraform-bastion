@@ -26,6 +26,16 @@ data "terraform_remote_state" "rds" {
   }
 }
 
+data "terraform_remote_state" "cert" {
+  backend = "s3"
+
+  config {
+    bucket = "${var.remote_bucket}"
+    key    = "cert/terraform.tfstate"
+    region = "us-west-2"
+  }
+}
+
 data "template_file" "user_data" {
   template = "${file("${path.module}/user_data.sh")}"
 
@@ -140,4 +150,12 @@ resource "aws_instance" "default" {
   subnet_id = "${data.terraform_remote_state.vpc.public_subnets[0]}"
 
   tags = "${merge(map("Name", format("%s", var.name)), var.tags)}"
+}
+
+resource "aws_route53_record" "www" {
+  zone_id = "${data.terraform_remote_state.cert.zone_id}"
+  name    = "bastion.${data.terraform_remote_state.cert.domain_name}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = ["${aws_instance.default.public_ip}"]
 }
