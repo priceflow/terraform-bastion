@@ -46,6 +46,7 @@ a.sold_last_7_days_change,
 a.first_price_flag,
 b.user_price,
 b.user_price_change,
+b.user_price_change_pct,
 /** Vehicle will sit in pending changes for 7 days after being added **/ 
 CASE WHEN a.vin_ss in (select b.vin_ss from api.price_changes b where exported = False and (current_date - added_time::date) <= 7)
        THEN 1
@@ -62,9 +63,8 @@ CASE WHEN a.vin_ss in (select b.vin_ss from api.price_changes b where (current_d
        THEN 'at market'
        ELSE a.price_change_bucket
        END as price_change_bucket
- 
-       FROM api.vehicles a left join (select c.* from api.price_changes c join (SELECT max(added_time) as added_time, dealer_id_is, vin_ss FROM api.price_changes group by dealer_id_is, vin_ss) d on c.dealer_id_is = d.dealer_id_is and c.vin_ss=d.vin_ss and c.added_time=d.added_time) b on a.dealer_id_is = b.dealer_id_is and a.vin_ss=b.vin_ss;       
-       
+ /**Take most recently added price change from price changes table for dealer-vin **/
+       FROM api.vehicles a left join (select c.* from api.price_changes c join (SELECT max(added_time) as added_time, dealer_id_is, vin_ss FROM api.price_changes group by dealer_id_is, vin_ss) d on c.dealer_id_is = d.dealer_id_is and c.vin_ss=d.vin_ss and c.added_time=d.added_time) b on a.dealer_id_is = b.dealer_id_is and a.vin_ss=b.vin_ss;     
     
 
    
