@@ -22,7 +22,9 @@ CASE WHEN a.vin_ss in (select b.vin_ss from api.price_changes b where (current_d
 CASE WHEN a.vin_ss in (select b.vin_ss from api.price_changes b where (current_date - exported_time::date) < 2)
        THEN 0
        ELSE abs(a.suggested_price_change_pct)
-       END as suggested_price_change_pct_abs,   
+       END as suggested_price_change_pct_abs,
+b.user_price,
+b.user_price_change,   
 a.year_is,
 a.make_ss,
 a.model_ss,
