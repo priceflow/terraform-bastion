@@ -22,9 +22,7 @@ CASE WHEN a.vin_ss in (select b.vin_ss from api.price_changes b where (current_d
 CASE WHEN a.vin_ss in (select b.vin_ss from api.price_changes b where (current_date - exported_time::date) < 2)
        THEN 0
        ELSE abs(a.suggested_price_change_pct)
-       END as suggested_price_change_pct_abs,
-b.user_price,
-b.user_price_change,   
+       END as suggested_price_change_pct_abs,   
 a.year_is,
 a.make_ss,
 a.model_ss,
@@ -63,9 +61,8 @@ CASE WHEN a.vin_ss in (select b.vin_ss from api.price_changes b where (current_d
        ELSE a.price_change_bucket
        END as price_change_bucket
  
-       FROM api.vehicles a left join api.price_changes b on a.dealer_id_is = b.dealer_id_is and a.vin_ss=b.vin_ss;       
-   
-
+       FROM api.vehicles a left join (select c.* from api.price_changes c join (SELECT max(added_time) as added_time, dealer_id_is, vin_ss FROM api.price_changes group by dealer_id_is, vin_ss) d on c.dealer_id_is = d.dealer_id_is and c.vin_ss=d.vin_ss and c.added_time=d.added_time) b on a.dealer_id_is = b.dealer_id_is and a.vin_ss=b.vin_ss;       
+       
 
    
 GRANT USAGE ON SCHEMA api TO web_anon;
