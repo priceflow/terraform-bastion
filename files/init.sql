@@ -1,4 +1,5 @@
-create or replace view api.vehicles_view as 
+DROP VIEW IF EXISTS api.vehicles_view;
+create or replace view api.vehicles_view as
 SELECT a.dealer_id_is,
 a.vin_ss,
 a.stock_no_ss,
