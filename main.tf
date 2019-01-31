@@ -154,7 +154,7 @@ resource "aws_instance" "default" {
 
 resource "aws_route53_record" "www" {
   zone_id = "${data.terraform_remote_state.cert.zone_id}"
-  name    = "bastion.${data.terraform_remote_state.cert.domain_name}"
+  name    = "bastion.priceflow-${var.stage}.com"
   type    = "A"
   ttl     = "300"
   records = ["${aws_instance.default.public_ip}"]

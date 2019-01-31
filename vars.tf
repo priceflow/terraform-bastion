@@ -10,6 +10,12 @@ variable "name" {
   default     = ""
 }
 
+variable "stage" {
+  description = "Name of the environment"
+  type        = "string"
+  default     = ""
+}
+
 variable "ssh_user" {
   description = "Default SSH user for this AMI. e.g. `ec2user` for Amazon Linux and `ubuntu` for Ubuntu systems"
   type        = "string"
